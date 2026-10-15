@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Đại Chiến Vương Triều — Bản dựng thử</title>
+<style>
+:root{--bg:#171d24;--panel:#222c35;--panel2:#2b3742;--gold:#e5b85c;--cream:#f6edda;--muted:#b6c0c8;--red:#b94e45;--green:#559b69;--blue:#5a8dc0}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#111820,#202b32);color:var(--cream);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:18px clamp(14px,3vw,34px);border-bottom:1px solid #4b4536;background:#171e24;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{font-family:Georgia,serif;font-size:clamp(23px,3vw,34px);margin:0;color:var(--gold);letter-spacing:.4px}header p{margin:3px 0 0;color:var(--muted);font-size:13px}
+button,select{font:inherit;border:1px solid #7f693d;background:#3b3325;color:#fff1d0;border-radius:9px;padding:9px 12px;cursor:pointer}
+button:hover{filter:brightness(1.14)}button:disabled{opacity:.42;cursor:not-allowed}.primary{background:#86652c;border-color:#d2a84d;font-weight:700}.danger{background:#6f302e;border-color:#a9544e}.quiet{background:#303b44;border-color:#58636c}
+main{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(320px,.9fr);gap:16px;padding:16px;max-width:1500px;margin:auto}
+.panel{background:var(--panel);border:1px solid #46515a;border-radius:14px;overflow:hidden;box-shadow:0 8px 24px #0002}.panel h2{font-family:Georgia,serif;color:var(--gold);font-size:19px;margin:0;padding:13px 15px;background:#192229;border-bottom:1px solid #45505a}.pad{padding:14px}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;padding:12px 16px;background:#202a32;border-bottom:1px solid #45505a}
+.stat{background:#2a353e;border-radius:10px;padding:9px;text-align:center}.stat small{display:block;color:var(--muted);font-size:12px}.stat strong{font-size:19px;color:#ffe0a0}
+.mapwrap{padding:10px;background:#16242a}.maplegend{display:flex;gap:12px;flex-wrap:wrap;padding:8px 4px;color:var(--muted);font-size:12px}.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px}
+svg{width:100%;height:auto;display:block;max-height:600px;background:#b5c9b1;border-radius:10px}
+.region{cursor:pointer;stroke:#f4e8c9;stroke-width:3;transition:filter .12s,stroke-width .12s}.region:hover{filter:brightness(1.1);stroke:#fff;stroke-width:5}.region.selected{stroke:#ffdf70;stroke-width:6}.regiontext{font-size:14px;font-weight:700;fill:#17222a;pointer-events:none;text-anchor:middle}.regionowner{font-size:10px;fill:#28343a;pointer-events:none;text-anchor:middle}
+.rightcol{display:flex;flex-direction:column;gap:16px}.tabs{display:flex;gap:6px;flex-wrap:wrap;padding:12px 14px 0}.tabs button{padding:7px 10px;font-size:13px}.tabs button.active{background:#d2a64e;color:#211b10;border-color:#f5d47e;font-weight:700}
+.actiongrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.action{background:#303c45;border-color:#56636c;text-align:left;min-height:70px}.action b{display:block;color:#ffdda0;margin-bottom:3px}.action small{color:#c5ced3;font-size:12px}
+.log{max-height:210px;overflow:auto;display:flex;flex-direction:column;gap:8px}.logentry{border-left:3px solid #c7a34e;padding:7px 9px;background:#2a353e;border-radius:0 7px 7px 0;font-size:13px}.muted{color:var(--muted)}.badge{display:inline-block;border-radius:20px;background:#37434c;padding:3px 8px;font-size:12px;color:#dbe3e8}.own{color:#a8e0b3}.enemy{color:#ffb3a9}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:8px}.card{padding:10px;background:#2a353e;border:1px solid #46515a;border-radius:10px}.card strong{color:#ffe0a0}.card p{margin:5px 0;color:var(--muted);font-size:13px}.sectionlabel{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:#aab6bd;margin:12px 0 7px}.status{padding:10px 13px;background:#1b262d;border-radius:9px;margin-bottom:10px;font-size:13px}
+footer{max-width:1500px;margin:0 auto;padding:0 16px 22px;color:#aab4ba;font-size:12px}
+@media(max-width:900px){main{grid-template-columns:1fr;padding:10px}.stats{grid-template-columns:repeat(3,1fr)}.rightcol{display:grid;grid-template-columns:1fr}.stats .stat:nth-child(4),.stats .stat:nth-child(5){display:block}}@media(max-width:430px){.stats{grid-template-columns:repeat(2,1fr)}.actiongrid{grid-template-columns:1fr}.regiontext{font-size:12px}}
+</style>
+</head>
+<body>
+<header>
+ <div><h1>⚔ ĐẠI CHIẾN VƯƠNG TRIỀU</h1><p>Game chiến thuật theo lượt · Bối cảnh Việt Nam thời phong kiến · Bản dựng thử 0.1</p></div>
+ <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="quiet" id="helpBtn">Hướng dẫn</button><button class="quiet" id="saveBtn">Lưu ván</button><button class="quiet" id="loadBtn">Tải ván</button><button class="danger" id="resetBtn">Chơi mới</button></div>
+</header>
+<div class="stats" id="stats"></div>
+<main>
+ <section class="panel">
+  <h2>🗺 Bản đồ Đại Việt và các châu lân cận</h2>
+  <div class="mapwrap">
+   <svg id="map" viewBox="0 0 760 590" role="img" aria-label="Bản đồ lãnh thổ có thể bấm chọn">
+    <defs><pattern id="water" width="32" height="32" patternUnits="userSpaceOnUse"><rect width="32" height="32" fill="#9fbfbd"/><path d="M0 10 Q8 5 16 10 T32 10 M0 25 Q8 20 16 25 T32 25" fill="none" stroke="#87aaa9" stroke-width="1"/></pattern></defs>
+    <rect width="760" height="590" fill="url(#water)"/>
+    <path d="M25 50 Q100 30 150 72 T230 110 L260 155 230 190 250 230 220 275 250 310 220 365 250 415 225 460 250 510 200 560 60 555 45 450 65 350 45 260 65 180Z" fill="#b8c9a4" stroke="#d9e0c9" stroke-width="3"/>
+    <path d="M250 55 Q360 35 450 70 T600 80 L710 150 700 270 740 340 680 420 700 520 610 565 510 530 430 560 350 510 290 455 300 380 270 315 290 250 260 185Z" fill="#b8c9a4" stroke="#d9e0c9" stroke-width="3"/>
+    <g id="regions"></g>
+    <path d="M80 85 Q150 140 140 205 T170 320 T155 420 T180 520" fill="none" stroke="#6b9ca5" stroke-width="7" opacity=".8"/>
+    <path d="M360 95 Q390 150 365 205 T395 300 T380 380 T420 490" fill="none" stroke="#6b9ca5" stroke-width="7" opacity=".8"/>
+    <text x="90" y="35" fill="#38565b" font-size="13" font-weight="700">TÂY VỰC</text><text x="540" y="35" fill="#38565b" font-size="13" font-weight="700">BẮC CHÂU</text><text x="550" y="575" fill="#38565b" font-size="13" font-weight="700">NAM HẢI</text>
+   </svg>
+   <div class="maplegend"><span><i class="dot" style="background:#d7b45e"></i>Lãnh thổ của bạn</span><span><i class="dot" style="background:#c96c61"></i>Đối thủ</span><span><i class="dot" style="background:#7da8c7"></i>Trung lập</span><span>Chọn một vùng trên bản đồ để xem thông tin.</span></div>
+  </div>
+  <div class="pad" id="regionInfo"></div>
+ </section>
+ <div class="rightcol">
+  <section class="panel">
+   <h2>🏯 Triều đình</h2>
+   <div class="tabs" id="tabs">
+    <button class="active" data-tab="state">Quốc gia</button><button data-tab="build">Xây dựng</button><button data-tab="army">Quân sự</button><button data-tab="diplomacy">Ngoại giao</button>
+   </div>
+   <div class="pad" id="tabContent"></div>
+  </section>
+  <section class="panel"><h2>📜 Sử ký triều đại</h2><div class="pad"><div class="log" id="log"></div></div></section>
+ </div>
+</main>
+<footer>Đây là bản dựng nguyên mẫu chạy trực tiếp trong trình duyệt, dùng bản đồ giản lược và các quốc gia giả lập lấy cảm hứng từ địa danh/lịch sử Việt Nam. Lưu ván sử dụng bộ nhớ cục bộ của trình duyệt.</footer>
+<script>
+const initialState=()=>({
+ turn:1,gold:900,food:700,wood:420,iron:260,pop:12000,stability:76,selected:'thanhlong',tab:'state',gameOver:false,
+ regions:[
+ {id:'thanhlong',name:'Thành Long',x:375,y:170,owner:'player',kind:'Kinh đô',level:2,army:650,buildings:['Cung điện','Chợ'],income:180,food:100,defense:2,desc:'Kinh đô, trung tâm hành chính và thương mại.'},
+ {id:'sonnam',name:'Sơn Nam',x:460,y:240,owner:'player',kind:'Đồng bằng',level:1,army:280,buildings:['Nông trại'],income:100,food:180,defense:1,desc:'Đồng bằng trù phú, thuận lợi phát triển lúa nước.'},
+ {id:'haichau',name:'Hải Châu',x:575,y:185,owner:'neutral',kind:'Cảng biển',level:1,army:180,buildings:[],income:120,food:50,defense:1,desc:'Cảng biển có giá trị thương mại và đường thủy.'},
+ {id:'bacgiang',name:'Bắc Giang',x:500,y:105,owner:'enemy',kind:'Đồi núi',level:1,army:520,buildings:['Tháp canh'],income:80,food:70,defense:2,desc:'Vùng đồi núi có thành lũy vững chắc.'},
+ {id:'tayson',name:'Tây Sơn',x:270,y:235,owner:'neutral',kind:'Cao nguyên',level:1,army:240,buildings:[],income:90,food:90,defense:1,desc:'Cao nguyên có gỗ và sắt, thích hợp dựng doanh trại.'},
+ {id:'nghean',name:'Nghệ An',x:370,y:330,owner:'neutral',kind:'Đồng bằng',level:1,army:210,buildings:[],income:100,food:140,defense:1,desc:'Vùng đất rộng, có thể làm bàn đạp tiến về phương Nam.'},
+ {id:'thuanhoa',name:'Thuận Hóa',x:445,y:410,owner:'enemy',kind:'Thành lũy',level:2,army:460,buildings:['Tường thành'],income:90,food:80,defense:3,desc:'Thành lũy chiến lược nằm trên con đường Nam tiến.'},
+ {id:'nambo',name:'Gia Định',x:525,y:500,owner:'neutral',kind:'Đồng bằng',level:1,army:160,buildings:[],income:130,food:180,defense:1,desc:'Đồng bằng phương Nam giàu tiềm năng khai khẩn.'},
+ {id:'vanlang',name:'Vạn Lang',x:155,y:150,owner:'enemy',kind:'Sơn địa',level:1,army:390,buildings:[],income:70,food:70,defense:2,desc:'Thế lực miền núi, nổi tiếng với bộ binh thiện chiến.'},
+ {id:'cuulong',name:'Cửu Long',x:310,y:505,owner:'neutral',kind:'Châu thổ',level:1,army:130,buildings:[],income:120,food:200,defense:1,desc:'Châu thổ nhiều lương thực, thích hợp định cư và khai hoang.'}
+ ],
+ logs:['Năm 1: Tân quân lên ngôi tại Thành Long. Triều đình cần củng cố quốc lực trước khi mở rộng bờ cõi.']
+});
+let S=initialState();
+const $=id=>document.getElementById(id);
+const ownerName=o=>o==='player'?'Đại Việt':o==='enemy'?'Đối thủ':'Trung lập';
+const ownerColor=o=>o==='player'?'#d7b45e':o==='enemy'?'#c96c61':'#7da8c7';
+function addLog(t){S.logs.unshift(`Năm ${S.turn}: ${t}`);S.logs=S.logs.slice(0,35)}
+function fmt(n){return Math.floor(n).toLocaleString('vi-VN')}
+function render(){
+ $('stats').innerHTML=[['💰 Vàng',S.gold],['🌾 Lương thực',S.food],['🪵 Gỗ',S.wood],['⛓ Sắt',S.iron],['👥 Dân số',fmt(S.pop)]].map(a=>`<div class="stat"><small>${a[0]}</small><strong>${a[1]}</strong></div>`).join('');
+ renderMap();renderRegion();renderTab();renderLog();
+}
+function renderMap(){
+ const g=$('regions');g.innerHTML='';
+ S.regions.forEach(r=>{
+  const pts=[[r.x-56,r.y-31],[r.x-34,r.y-53],[r.x+23,r.y-48],[r.x+55,r.y-15],[r.x+48,r.y+28],[r.x+5,r.y+48],[r.x-43,r.y+32]].map(p=>p.join(',')).join(' ');
+  const group=document.createElementNS('http://www.w3.org/2000/svg','g');
+  const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');poly.setAttribute('points',pts);poly.setAttribute('fill',ownerColor(r.owner));poly.setAttribute('class','region'+(r.id===S.selected?' selected':''));poly.addEventListener('click',()=>{S.selected=r.id;render()});group.appendChild(poly);
+  const t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',r.x);t.setAttribute('y',r.y-2);t.setAttribute('class','regiontext');t.textContent=r.name;group.appendChild(t);
+  const o=document.createElementNS('http://www.w3.org/2000/svg','text');o.setAttribute('x',r.x);o.setAttribute('y',r.y+15);o.setAttribute('class','regionowner');o.textContent=`⚔ ${r.army}`;group.appendChild(o);g.appendChild(group);
+ });
+}
+function selected(){return S.regions.find(r=>r.id===S.selected)}
+function renderRegion(){
+ const r=selected();if(!r)return;
+ $('regionInfo').innerHTML=`<div class="status"><strong>${r.name}</strong> <span class="badge">${r.kind}</span> <span class="badge">${ownerName(r.owner)}</span><p class="muted" style="margin:7px 0">${r.desc}</p><div class="twocol"><div class="card">Quân đồn trú<br><strong>${fmt(r.army)} quân</strong></div><div class="card">Phòng thủ<br><strong>${r.defense} điểm</strong></div></div></div>`;
+}
+function btn(title,desc,action,disabled=false,cls='action'){return `<button class="${cls}" data-action="${action}" ${disabled?'disabled':''}><b>${title}</b><small>${desc}</small></button>`}
+function renderTab(){
+ const t=S.tab;document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+ let html='';
+ if(t==='state'){
+  html=`<div class="status">👑 <strong>Đại Việt — năm trị vì ${S.turn}</strong><br><span class="muted">Lòng dân: ${S.stability}/100 · Lãnh thổ: ${S.regions.filter(r=>r.owner==='player').length}/${S.regions.length} vùng</span></div>
+  <div class="sectionlabel">Chính sách quốc gia</div><div class="actiongrid">
+  ${btn('Thu thuế','+220 vàng, lòng dân giảm 5','tax',false)}
+  ${btn('Phát chẩn','−100 vàng, +10 lòng dân','relief',S.gold<100)}
+  ${btn('Khai khẩn','−100 vàng, +100 dân, +80 lương thực','settle',S.gold<100)}
+  ${btn('Qua năm','Thu nhập, tiêu hao lương thực và sự kiện','endturn',false,'action primary')}
+  </div><p class="muted" style="font-size:12px">Mẹo: xây kinh tế trước khi chinh phạt. Quân đội tiêu hao lương thực mỗi năm.</p>`;
+ } else if(t==='build'){
+  html=`<p class="muted">Chọn vùng thuộc Đại Việt trên bản đồ rồi xây công trình.</p><div class="actiongrid">
+  ${btn('🌾 Nông trại','−120 vàng, −40 gỗ · tăng lương thực mỗi năm','farm',S.gold<120||S.wood<40)}
+  ${btn('🛒 Chợ','−150 vàng, −60 gỗ · tăng thu nhập','market',S.gold<150||S.wood<60)}
+  ${btn('⚒ Lò rèn','−130 vàng, −50 gỗ · tăng sắt mỗi năm','forge',S.gold<130||S.wood<50)}
+  ${btn('🧱 Tường thành','−180 vàng, −100 gỗ · tăng phòng thủ','wall',S.gold<180||S.wood<100)}
+  </div><div class="sectionlabel">Công trình ở ${selected().name}</div><p>${selected().buildings.length?selected().buildings.join(' · '):'Chưa có công trình.'}</p>`;
+ } else if(t==='army'){
+  const r=selected();html=`<div class="status">Vùng đang chọn: <strong>${r.name}</strong> · ${ownerName(r.owner)} · ${fmt(r.army)} quân</div><div class="actiongrid">
+  ${btn('Tuyển 100 bộ binh','−120 vàng, −70 lương thực','recruit',S.gold<120||S.food<70||r.owner!=='player')}
+  ${btn('Huấn luyện quân','−100 vàng · tăng sức chiến đấu khi tấn công','train',S.gold<100||r.owner!=='player')}
+  ${btn('Hành quân chinh phạt','Chọn vùng trung lập hoặc địch liền kề','attack',r.owner==='player'||!adjacentPlayer(r)||S.food<100,'action primary')}
+  ${btn('Điều quân về kinh đô','Chuyển 100 quân từ vùng này về Thành Long','reinforce',r.owner!=='player'||r.id==='thanhlong'||r.army<100)}
+  </div><p class="muted" style="font-size:12px">Kết quả trận đánh phụ thuộc quân số, phòng thủ và một phần may rủi. Vùng chiếm được sẽ thuộc về bạn.</p>`;
+ } else {
+  const r=selected();html=`<p class="muted">Ngoại giao chỉ khả dụng với các vùng do đối thủ hoặc trung lập kiểm soát.</p><div class="status">Đang chọn: <strong>${r.name}</strong> · ${ownerName(r.owner)}</div><div class="actiongrid">
+  ${btn('Mở giao thương','−80 vàng · tăng thu nhập vùng này nếu hòa hiếu','trade',S.gold<80||r.owner==='player')}
+  ${btn('Đề nghị quy phục','−180 vàng · có cơ hội thu phục vùng yếu','vassal',S.gold<180||r.owner==='player')}
+  ${btn('Đề nghị đình chiến','−100 vàng · giảm nguy cơ chiến tranh','peace',S.gold<100||r.owner!=='enemy')}
+  ${btn('Tuyên bố chủ quyền','Tạo cớ ngoại giao cho chiến dịch kế tiếp','claim',r.owner==='player')}
+  </div>`;
+ }
+ $('tabContent').innerHTML=html;
+ $('tabContent').querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>act(b.dataset.action)));
+}
+function adjacentPlayer(r){
+ const player=S.regions.filter(x=>x.owner==='player');
+ const dist=a=>Math.hypot(a.x-r.x,a.y-r.y);
+ return player.some(p=>dist(p)<190);
+}
+function act(a){
+ if(S.gameOver)return;
+ const r=selected();
+ if(a==='tax'){S.gold+=220;S.stability=Math.max(0,S.stability-5);addLog('Triều đình thu thêm thuế. Quốc khố tăng nhưng lòng dân giảm.')}
+ if(a==='relief'){if(S.gold<100)return;S.gold-=100;S.stability=Math.min(100,S.stability+10);S.pop+=150;addLog('Hoàng đế phát chẩn, cứu trợ dân nghèo.')}
+ if(a==='settle'){if(S.gold<100)return;S.gold-=100;S.pop+=100;S.food+=80;addLog('Triều đình mở đất, khuyến khích dân khai hoang.')}
+ if(['farm','market','forge','wall'].includes(a)){
+  if(r.owner!=='player'){addLog('Không thể xây dựng ở vùng đất chưa thuộc quyền kiểm soát.');render();return}
+  const costs={farm:[120,40],market:[150,60],forge:[130,50],wall:[180,100]},names={farm:'Nông trại',market:'Chợ',forge:'Lò rèn',wall:'Tường thành'},c=costs[a];
+  if(S.gold<c[0]||S.wood<c[1])return;
+  if(r.buildings.includes(names[a])){addLog(`${r.name} đã có ${names[a]}.`);render();return}
+  S.gold-=c[0];S.wood-=c[1];r.buildings.push(names[a]);if(a==='wall')r.defense+=2;
+  addLog(`Hoàn thành ${names[a]} tại ${r.name}.`); 
+ }
+ if(a==='recruit'){if(S.gold<120||S.food<70||r.owner!=='player')return;S.gold-=120;S.food-=70;r.army+=100;addLog(`Đã tuyển thêm 100 quân tại ${r.name}.`)}
+ if(a==='train'){if(S.gold<100||r.owner!=='player')return;S.gold-=100;r.army=Math.floor(r.army*1.12);addLog(`Quân đội tại ${r.name} được huấn luyện, sức mạnh tăng.`)}
+ if(a==='reinforce'){const cap=S.regions.find(x=>x.id==='thanhlong');if(!cap||r.army<100)return;r.army-=100;cap.army+=100;addLog(`Điều 100 quân từ ${r.name} về Thành Long.`)}
+ if(a==='attack'){
+  if(r.owner==='player'||!adjacentPlayer(r)||S.food<100)return;
+  const source=S.regions.filter(x=>x.owner==='player'&&Math.hypot(x.x-r.x,x.y-r.y)<190).sort((a,b)=>b.army-a.army)[0];
+  if(!source){addLog('Không có đạo quân nào đủ gần để xuất chinh.');render();return}
+  if(source.army<100){addLog('Đạo quân quá nhỏ để xuất chinh.');render();return}
+  S.food-=100;const attackPower=source.army*(0.72+Math.random()*0.6);const defensePower=r.army*(0.75+r.defense*.16);
+  if(attackPower>defensePower){const loss=Math.min(source.army-50,Math.floor(source.army*(.18+Math.random()*.2)));source.army-=loss;r.owner='player';r.army=Math.max(80,Math.floor(r.army*.22));S.stability=Math.max(0,S.stability-3);addLog(`Đại thắng tại ${r.name}! Quân ta tổn thất ${loss}; vùng đất được sáp nhập.`)}
+  else {const loss=Math.min(source.army-30,Math.floor(source.army*(.3+Math.random()*.3)));source.army-=Math.max(0,loss);r.army=Math.max(40,Math.floor(r.army*.82));addLog(`Tấn công ${r.name} thất bại. Đạo quân của ta tổn thất nặng.`)}
+ }
+ if(a==='trade'){if(S.gold<80||r.owner==='player')return;S.gold-=80;r.income+=35;addLog(`Thương ước tại ${r.name} được ký kết. Giao thương tăng.`)}
+ if(a==='vassal'){if(S.gold<180||r.owner==='player')return;S.gold-=180;const strength=S.regions.filter(x=>x.owner==='player').reduce((n,x)=>n+x.army,0);if(r.army<strength*.45+200||Math.random()<.28){r.owner='player';r.army=Math.max(60,Math.floor(r.army*.5));S.stability=Math.min(100,S.stability+3);addLog(`${r.name} chấp nhận quy phục sau đàm phán.`)}else addLog(`${r.name} từ chối quy phục. Cần tăng uy thế hoặc sức mạnh.`)}
+ if(a==='peace'){if(S.gold<100||r.owner!=='enemy')return;S.gold-=100;r.army=Math.max(0,Math.floor(r.army*.9));addLog(`Sứ giả được cử đến ${r.name}. Đối thủ đồng ý giảm căng thẳng trong thời gian ngắn.`)}
+ if(a==='claim'){if(r.owner==='player')return;addLog(`Triều đình ban chiếu tuyên bố chủ quyền với ${r.name}. Hãy chuẩn bị lực lượng hoặc tiếp tục đàm phán.`)}
+ if(a==='endturn'){
+  S.turn++;const owned=S.regions.filter(x=>x.owner==='player');
+  S.gold+=owned.reduce((n,x)=>n+x.income,0);S.food+=owned.reduce((n,x)=>n+x.food,0);
+  S.wood+=Math.max(10,owned.length*12);S.iron+=Math.max(8,owned.filter(x=>x.kind==='Cao nguyên'||x.buildings.includes('Lò rèn')).length*14);
+  const upkeep=Math.ceil(owned.reduce((n,x)=>n+x.army,0)/80);S.food-=upkeep;
+  S.pop+=Math.floor(owned.length*35);
+  if(S.food<0){S.food=0;S.stability=Math.max(0,S.stability-10);S.pop=Math.max(1000,S.pop-250);addLog('Thiếu lương thực! Dân chúng đói khổ, lòng dân suy giảm.')}
+  if(S.stability<35&&Math.random()<.3){const target=owned.find(x=>x.id!=='thanhlong');if(target){target.army=Math.max(0,target.army-50);S.stability=Math.max(0,S.stability-5);addLog(`Bạo loạn xảy ra tại ${target.name}; trật tự địa phương suy yếu.`)}}
+  // AI đối thủ củng cố lực lượng
+  S.regions.filter(x=>x.owner==='enemy').forEach(x=>{x.army+=Math.floor(20+Math.random()*35)});
+  if(S.turn%4===0){const neutral=S.regions.filter(x=>x.owner==='neutral');const enemy=S.regions.find(x=>x.owner==='enemy');if(neutral.length&&enemy&&Math.random()<.5){const target=neutral[Math.floor(Math.random()*neutral.length)];target.owner='enemy';addLog(`Tin cấp báo: thế lực đối địch đã chiếm ${target.name}.`)}else addLog('Mùa màng ổn định, các quan báo cáo quốc thái dân an.')}
+  addLog('Thu thuế và sản vật trong năm đã được ghi nhận.');
+  if(S.stability<=0){S.gameOver=true;addLog('Triều đình sụp đổ vì lòng dân cạn kiệt. Hãy chơi ván mới.')}
+  if(owned.length===S.regions.length){S.gameOver=true;addLog('THỐNG NHẤT THIÊN HẠ! Đại Việt đã làm chủ toàn bộ bản đồ.')}
+ }
+ render();
+}
+function renderLog(){$('log').innerHTML=S.logs.map(x=>`<div class="logentry">${x}</div>`).join('')}
+document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>{S.tab=b.dataset.tab;renderTab()}));
+$('resetBtn').addEventListener('click',()=>{if(confirm('Bắt đầu ván mới? Tiến trình hiện tại sẽ mất nếu chưa lưu.')){S=initialState();render()}});
+$('saveBtn').addEventListener('click',()=>{try{localStorage.setItem('daiChienVuongTrieuSave',JSON.stringify(S));alert('Đã lưu ván chơi trên trình duyệt này.')}catch(e){alert('Không thể lưu trong chế độ hiện tại.')}});
+$('loadBtn').addEventListener('click',()=>{try{const x=localStorage.getItem('daiChienVuongTrieuSave');if(!x){alert('Chưa có bản lưu.');return}S=JSON.parse(x);render();alert('Đã tải ván chơi.')}catch(e){alert('Bản lưu không hợp lệ.')}});
+$('helpBtn').addEventListener('click',()=>alert('HƯỚNG DẪN NHANH\\n\\n1. Bấm vào vùng trên bản đồ để chọn.\\n2. Dùng tab Xây dựng để tạo nông trại, chợ, lò rèn và tường thành.\\n3. Tab Quân sự để tuyển quân, huấn luyện và chinh phạt vùng trung lập/địch gần lãnh thổ của bạn.\\n4. Tab Ngoại giao để giao thương hoặc đề nghị quy phục.\\n5. Tab Quốc gia: thu thuế, phát chẩn, khai khẩn và qua năm.\\n6. Luôn để ý lương thực và lòng dân. Chiến thắng khi kiểm soát toàn bộ vùng đất.'));
+render();
+</script>
+</body>
+</html>
